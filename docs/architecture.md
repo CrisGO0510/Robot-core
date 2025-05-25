@@ -16,7 +16,6 @@ src/main/java/edu/utp/robot
 │   │   └── static
 │   │       ├── actuation
 │   │       └── perception
-│   ├── shared
 │   └── user
 ├── infrastructure
 │   ├── actuators
