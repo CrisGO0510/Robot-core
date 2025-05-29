@@ -128,6 +128,7 @@ public class MainGUI {
             JLabel lblCamara = new JLabel("Cámara: ---");
             JLabel lblActuador = new JLabel("Actuador: ---");
             JLabel lblComunicacion = new JLabel("Comunicación: ---");
+            JLabel lblAccion = new JLabel("Acción: ---");
 
             JButton btnEncender = new JButton("Encender Robot");
             JButton btnApagar = new JButton("Apagar Robot");
@@ -163,12 +164,12 @@ public class MainGUI {
                     JOptionPane.showMessageDialog(frame, "Número de pasos inválido.");
                     return;
                 }
-                moverInteligente(pasos, worldMap, animales, virtualSpeaker, frame, campoPanel, lblEstado, robotEncendido);
+                moverInteligente(pasos, worldMap, animales, virtualSpeaker, frame, campoPanel, lblEstado, lblAccion, robotEncendido, extension, rotation, helical);
             });
 
             btnSensor.addActionListener(e -> {
                 sensorProximity.encender();
-                Object lectura = sensorProximity.captarInformacion(); // <-- CORREGIDO
+                Object lectura = sensorProximity.captarInformacion();
                 lblSensor.setText("Sensor: " + (lectura != null ? lectura : "Sin lectura"));
                 sensorProximity.apagar();
             });
@@ -195,7 +196,7 @@ public class MainGUI {
             });
 
             JPanel panel = new JPanel();
-            panel.setLayout(new GridLayout(5, 2, 10, 10));
+            panel.setLayout(new GridLayout(6, 2, 10, 10));
             panel.add(btnEncender);
             panel.add(btnApagar);
             panel.add(btnAvanzarInteligente);
@@ -209,6 +210,7 @@ public class MainGUI {
             panel.add(btnComunicar);
             panel.add(lblComunicacion);
             panel.add(lblEncendido);
+            panel.add(lblAccion);
 
             frame.setLayout(new BorderLayout());
             frame.add(campoPanel, BorderLayout.NORTH);
@@ -219,7 +221,7 @@ public class MainGUI {
         });
     }
 
-    // Método privado para modularizar el movimiento inteligente
+    // Método privado para modularizar el movimiento inteligente usando módulos dinámicos
     private static void moverInteligente(
             int pasos,
             VirtualWorldMap worldMap,
@@ -228,32 +230,41 @@ public class MainGUI {
             JFrame frame,
             JPanel campoPanel,
             JLabel lblEstado,
-            boolean[] robotEncendido
+            JLabel lblAccion,
+            boolean[] robotEncendido,
+            Extension extension,
+            Rotation rotation,
+            Helical helical
     ) {
         Set<Position> visitados = new HashSet<>();
         visitados.add(new Position(worldMap.getRobotX(), worldMap.getRobotY()));
         LinkedList<Position> ultimosPasos = new LinkedList<>();
         ultimosPasos.add(new Position(worldMap.getRobotX(), worldMap.getRobotY()));
-
+    
         new Thread(() -> {
             Position anterior = new Position(worldMap.getRobotX(), worldMap.getRobotY());
-            for (int i = 0; i < pasos; i++) {
+            int pasosDados = 0;
+            int intentos = 0;
+            int maxIntentos = 30; // Límite de giros seguidos
+    
+            while (pasosDados < pasos && intentos < maxIntentos) {
                 if (!robotEncendido[0]) break;
-
+    
                 int x = worldMap.getRobotX();
                 int y = worldMap.getRobotY();
-
+    
                 List<int[]> dirsList = Arrays.asList(
-                        new int[]{1,0},   // abajo
-                        new int[]{0,1},   // derecha
-                        new int[]{0,-1},  // izquierda
-                        new int[]{-1,0},  // arriba
+                        new int[]{1,0},   // abajo (avanzar)
+                        new int[]{0,1},   // derecha (girar derecha)
+                        new int[]{0,-1},  // izquierda (girar izquierda)
+                        new int[]{-1,0},  // arriba (retroceder)
                         new int[]{1,1}    // helicoidal
                 );
                 Collections.shuffle(dirsList);
                 int[][] dirs = dirsList.toArray(new int[0][]);
-
+    
                 boolean movido = false;
+                String accion = "";
                 for (int[] d : dirs) {
                     int nx = x + d[0];
                     int ny = y + d[1];
@@ -263,34 +274,23 @@ public class MainGUI {
                             !ultimosPasos.contains(nextPos) &&
                             !worldMap.hayObstaculo(nx, ny) &&
                             !nextPos.equals(anterior)) {
-                        worldMap.moverRobot(d[0], d[1]);
-                        movido = true;
+                        // Solo cuenta como paso si avanza, retrocede o helicoidal
+                        if (Arrays.equals(d, new int[]{1,0})) { extension.avanzar(); accion = "Avanzando"; movido = true; pasosDados++; intentos = 0; }
+                        else if (Arrays.equals(d, new int[]{-1,0})) { extension.retroceder(); accion = "Retrocediendo"; movido = true; pasosDados++; intentos = 0; }
+                        else if (Arrays.equals(d, new int[]{1,1})) { helical.moverse(new float[]{1}); accion = "Movimiento helicoidal"; movido = true; pasosDados++; intentos = 0; }
+                        else if (Arrays.equals(d, new int[]{0,1})) { rotation.girarDerecha(); accion = "Girando a la derecha"; movido = true; intentos++; }
+                        else if (Arrays.equals(d, new int[]{0,-1})) { rotation.girarIzquierda(); accion = "Girando a la izquierda"; movido = true; intentos++; }
                         break;
                     }
                 }
-                if (!movido) {
-                    for (int[] d : dirs) {
-                        int nx = x + d[0];
-                        int ny = y + d[1];
-                        Position nextPos = new Position(nx, ny);
-                        if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10 &&
-                                !ultimosPasos.contains(nextPos) &&
-                                !worldMap.hayObstaculo(nx, ny) &&
-                                !nextPos.equals(anterior)) {
-                            worldMap.moverRobot(d[0], d[1]);
-                            movido = true;
-                            break;
-                        }
-                    }
-                }
                 if (!movido) break;
-
+    
                 anterior = new Position(x, y);
                 Position actual = new Position(worldMap.getRobotX(), worldMap.getRobotY());
                 visitados.add(actual);
                 ultimosPasos.add(actual);
                 if (ultimosPasos.size() > 4) ultimosPasos.removeFirst();
-
+    
                 if (animales.contains(actual)) {
                     speaker.emitirSonido("¡Animal detectado! Sonido ahuyentador.");
                     Toolkit.getDefaultToolkit().beep();
@@ -298,12 +298,20 @@ public class MainGUI {
                     animales.remove(actual);
                     campoPanel.repaint();
                 }
-
+    
+                String finalAccion = accion;
                 SwingUtilities.invokeLater(() -> {
                     campoPanel.repaint();
                     lblEstado.setText("Posición: (" + worldMap.getRobotX() + "," + worldMap.getRobotY() + ")");
+                    lblAccion.setText("Acción: " + finalAccion);
                 });
                 try { Thread.sleep(400); } catch (InterruptedException ex) { }
+            }
+    
+            if (intentos >= maxIntentos) {
+                SwingUtilities.invokeLater(() -> 
+                    JOptionPane.showMessageDialog(frame, "El robot no puede avanzar más y ha dejado de intentar.")
+                );
             }
         }).start();
     }
