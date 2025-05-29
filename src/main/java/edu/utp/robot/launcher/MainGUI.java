@@ -1,6 +1,5 @@
 package edu.utp.robot.launcher;
 
-
 import edu.utp.robot.application.RobotServices;
 import edu.utp.robot.domain.Robot;
 import edu.utp.robot.domain.communication.CommunicationGateway;
@@ -23,7 +22,7 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.Collections;
 import java.util.Arrays;
-import java.util.List; // Importación explícita para evitar ambigüedad
+import java.util.List;
 
 public class MainGUI {
     public static void main(String[] args) {
@@ -221,20 +220,20 @@ public class MainGUI {
         });
     }
 
-    // Método privado para modularizar el movimiento inteligente usando módulos dinámicos
+    // Método para mover el robot de forma inteligente
     private static void moverInteligente(
-            int pasos,
-            VirtualWorldMap worldMap,
-            Set<Position> animales,
-            VirtualSpeaker speaker,
-            JFrame frame,
-            JPanel campoPanel,
-            JLabel lblEstado,
-            JLabel lblAccion,
-            boolean[] robotEncendido,
-            Extension extension,
-            Rotation rotation,
-            Helical helical
+        int pasos,
+        VirtualWorldMap worldMap,
+        Set<Position> animales,
+        VirtualSpeaker speaker,
+        JFrame frame,
+        JPanel campoPanel,
+        JLabel lblEstado,
+        JLabel lblAccion,
+        boolean[] robotEncendido,
+        Extension extension,
+        Rotation rotation,
+        Helical helical
     ) {
         Set<Position> visitados = new HashSet<>();
         visitados.add(new Position(worldMap.getRobotX(), worldMap.getRobotY()));
@@ -245,7 +244,7 @@ public class MainGUI {
             Position anterior = new Position(worldMap.getRobotX(), worldMap.getRobotY());
             int pasosDados = 0;
             int intentos = 0;
-            int maxIntentos = 30; // Límite de giros seguidos
+            int maxIntentos = 30;
     
             while (pasosDados < pasos && intentos < maxIntentos) {
                 if (!robotEncendido[0]) break;
@@ -254,17 +253,19 @@ public class MainGUI {
                 int y = worldMap.getRobotY();
     
                 List<int[]> dirsList = Arrays.asList(
-                        new int[]{1,0},   // abajo (avanzar)
-                        new int[]{0,1},   // derecha (girar derecha)
-                        new int[]{0,-1},  // izquierda (girar izquierda)
-                        new int[]{-1,0},  // arriba (retroceder)
-                        new int[]{1,1}    // helicoidal
+                    new int[]{1,0},   // abajo
+                    new int[]{0,1},   // derecha
+                    new int[]{0,-1},  // izquierda
+                    new int[]{-1,0},  // arriba
+                    new int[]{1,1}    // helicoidal
                 );
                 Collections.shuffle(dirsList);
                 int[][] dirs = dirsList.toArray(new int[0][]);
     
                 boolean movido = false;
                 String accion = "";
+    
+                // Primer intento: posiciones no visitadas
                 for (int[] d : dirs) {
                     int nx = x + d[0];
                     int ny = y + d[1];
@@ -274,15 +275,80 @@ public class MainGUI {
                             !ultimosPasos.contains(nextPos) &&
                             !worldMap.hayObstaculo(nx, ny) &&
                             !nextPos.equals(anterior)) {
-                        // Solo cuenta como paso si avanza, retrocede o helicoidal
-                        if (Arrays.equals(d, new int[]{1,0})) { extension.avanzar(); accion = "Avanzando"; movido = true; pasosDados++; intentos = 0; }
-                        else if (Arrays.equals(d, new int[]{-1,0})) { extension.retroceder(); accion = "Retrocediendo"; movido = true; pasosDados++; intentos = 0; }
-                        else if (Arrays.equals(d, new int[]{1,1})) { helical.moverse(new float[]{1}); accion = "Movimiento helicoidal"; movido = true; pasosDados++; intentos = 0; }
-                        else if (Arrays.equals(d, new int[]{0,1})) { rotation.girarDerecha(); accion = "Girando a la derecha"; movido = true; intentos++; }
-                        else if (Arrays.equals(d, new int[]{0,-1})) { rotation.girarIzquierda(); accion = "Girando a la izquierda"; movido = true; intentos++; }
+                        if (Arrays.equals(d, new int[]{1,0})) { 
+                            extension.avanzar(); 
+                            accion = "Avanzando"; 
+                            movido = true; 
+                            pasosDados++; 
+                            intentos = 0;
+                        }
+                        else if (Arrays.equals(d, new int[]{-1,0})) { 
+                            extension.retroceder(); 
+                            accion = "Retrocediendo"; 
+                            movido = true; 
+                            pasosDados++; 
+                            intentos = 0;
+                        }
+                        else if (Arrays.equals(d, new int[]{1,1})) { 
+                            helical.moverse(new float[]{1}); 
+                            accion = "Movimiento helicoidal"; 
+                            movido = true; 
+                            pasosDados++; 
+                            intentos = 0;
+                        }
+                        else if (Arrays.equals(d, new int[]{0,1})) { 
+                            rotation.girarDerecha(); 
+                            accion = "Girando a la derecha"; 
+                            movido = true; 
+                            pasosDados++; 
+                            intentos++;
+                        }
+                        else if (Arrays.equals(d, new int[]{0,-1})) { 
+                            rotation.girarIzquierda(); 
+                            accion = "Girando a la izquierda"; 
+                            movido = true; 
+                            pasosDados++; 
+                            intentos++;
+                        }
                         break;
                     }
                 }
+    
+                if (!movido) {
+                    // Intento con cualquier casilla libre
+                    for (int[] d : dirs) {
+                        int nx = x + d[0];
+                        int ny = y + d[1];
+                        Position nextPos = new Position(nx, ny);
+                        if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10 &&
+                                !worldMap.hayObstaculo(nx, ny) &&
+                                !nextPos.equals(anterior)) {
+                            if (Arrays.equals(d, new int[]{1,0})) { 
+                                extension.avanzar(); 
+                                accion = "Avanzando (forzado)"; 
+                                movido = true; 
+                                pasosDados++; 
+                                intentos = 0;
+                            }
+                            else if (Arrays.equals(d, new int[]{-1,0})) { 
+                                extension.retroceder(); 
+                                accion = "Retrocediendo (forzado)"; 
+                                movido = true; 
+                                pasosDados++; 
+                                intentos = 0;
+                            }
+                            else if (Arrays.equals(d, new int[]{1,1})) { 
+                                helical.moverse(new float[]{1}); 
+                                accion = "Movimiento helicoidal (forzado)"; 
+                                movido = true; 
+                                pasosDados++; 
+                                intentos = 0;
+                            }
+                            break;
+                        }
+                    }
+                }
+    
                 if (!movido) break;
     
                 anterior = new Position(x, y);
@@ -306,13 +372,16 @@ public class MainGUI {
                     lblAccion.setText("Acción: " + finalAccion);
                 });
                 try { Thread.sleep(400); } catch (InterruptedException ex) { }
+    
+                if (pasosDados >= pasos) break;
             }
     
             if (intentos >= maxIntentos) {
-                SwingUtilities.invokeLater(() -> 
-                    JOptionPane.showMessageDialog(frame, "El robot no puede avanzar más y ha dejado de intentar.")
+                SwingUtilities.invokeLater(() ->
+                        JOptionPane.showMessageDialog(frame, "El robot no puede avanzar más y ha dejado de intentar.")
                 );
             }
         }).start();
     }
 }
+

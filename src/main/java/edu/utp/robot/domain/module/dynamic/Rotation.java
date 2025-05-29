@@ -19,26 +19,20 @@ public class Rotation extends DynamicModule {
         return 2;
     }
 
-    /**
-     * Gira el robot hacia la derecha.
-     */
     public void girarDerecha() {
         if (worldMap != null) {
-            worldMap.girarDerecha(); // Implementa este método en VirtualWorldMap
+            worldMap.moverRobot(0, 1); // Mueve una casilla a la derecha
         }
         System.out.println("Girando a la derecha.");
-        if (onRotateCallback != null) onRotateCallback.run(); // Notifica a la UI
+        if (onRotateCallback != null) onRotateCallback.run();
     }
 
-    /**
-     * Gira el robot hacia la izquierda.
-     */
     public void girarIzquierda() {
         if (worldMap != null) {
-            worldMap.girarIzquierda(); // Implementa este método en VirtualWorldMap
+            worldMap.moverRobot(0, -1); // Mueve una casilla a la izquierda
         }
         System.out.println("Girando a la izquierda.");
-        if (onRotateCallback != null) onRotateCallback.run(); // Notifica a la UI
+        if (onRotateCallback != null) onRotateCallback.run();
     }
 
     // Métodos abstractos heredados de Module
