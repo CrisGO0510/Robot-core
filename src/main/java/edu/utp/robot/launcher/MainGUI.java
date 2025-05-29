@@ -50,7 +50,7 @@ public class MainGUI {
             Actuator actuator = new Actuator(1, 1, "Luz", "Actuador de luz LED");
 
             // Sensores
-            Camera camera = new Camera(1, 101, "Frontal", "Cámara HD frontal");
+            Camera camera = new Camera(1, 101, "Frontal", "Cámara HD frontal", worldMap);
             SensorProximity sensorProximity = new SensorProximity(1, worldMap);
 
             // Comunicación

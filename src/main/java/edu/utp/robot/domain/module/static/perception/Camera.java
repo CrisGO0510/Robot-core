@@ -1,17 +1,21 @@
 package edu.utp.robot.domain.module.Static.perception;
 
+import edu.utp.robot.infrastructure.environment.VirtualWorldMap;
+
 public class Camera extends Perception {
     private int id;
     private String tipo;
     private String descripcion;
     private boolean encendida = false;
     private Object ultimaCaptura = null;
+    private VirtualWorldMap worldMap; // Referencia al mapa
 
-    public Camera(int N_Sensores, int id, String tipo, String descripcion) {
+    public Camera(int N_Sensores, int id, String tipo, String descripcion, VirtualWorldMap worldMap) {
         super(N_Sensores);
         this.id = id;
         this.tipo = tipo;
         this.descripcion = descripcion;
+        this.worldMap = worldMap;
     }
 
     @Override
@@ -20,9 +24,14 @@ public class Camera extends Perception {
             System.out.println("Cámara " + id + " (" + tipo + ") está apagada. No puede procesar datos.");
             return null;
         }
-        // Simulación: si los datos contienen la palabra "animal", detecta un animal
+        // Detecta animal o obstáculo
         if (datos != null && datos.toString().toLowerCase().contains("animal")) {
             String resultado = "Cámara " + id + ": ¡Animal detectado!";
+            System.out.println(resultado);
+            return resultado;
+        }
+        if (datos != null && datos.toString().toLowerCase().contains("obstáculo")) {
+            String resultado = "Cámara " + id + ": ¡Obstáculo detectado!";
             System.out.println(resultado);
             return resultado;
         }
@@ -37,9 +46,21 @@ public class Camera extends Perception {
             System.out.println("Cámara " + id + " (" + tipo + ") está apagada. No puede captar información.");
             return null;
         }
-        // Simulación: genera una "imagen" aleatoria (puedes cambiar esto por una imagen real si lo deseas)
-        ultimaCaptura = "Imagen simulada por cámara " + id;
-        System.out.println("Cámara " + id + " captó información visual.");
+        int x = worldMap.getRobotX();
+        int y = worldMap.getRobotY();
+        // Revisa si hay obstáculo en la posición actual o adyacente
+        int[][] dirs = { {0,0}, {1,0}, {-1,0}, {0,1}, {0,-1} };
+        for (int[] d : dirs) {
+            int nx = x + d[0];
+            int ny = y + d[1];
+            if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10 && worldMap.hayObstaculo(nx, ny)) {
+                ultimaCaptura = "Obstáculo detectado por cámara " + id;
+                System.out.println(ultimaCaptura);
+                return ultimaCaptura;
+            }
+        }
+        ultimaCaptura = "Sin obstáculos en la vista de la cámara " + id;
+        System.out.println(ultimaCaptura);
         return ultimaCaptura;
     }
 
