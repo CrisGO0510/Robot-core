@@ -1,11 +1,14 @@
 package edu.utp.robot.domain.module.dynamic;
 
-public abstract class DynamicModule {
+import edu.utp.robot.domain.module.Module;
+
+public abstract class DynamicModule extends Module {
     // Atributo privado para el número de motores
     private int N_Motores;
 
     // Constructor para inicializar el número de motores
     public DynamicModule(int N_Motores) {
+        super(); // Llama al constructor de Module
         this.N_Motores = N_Motores;
     }
 

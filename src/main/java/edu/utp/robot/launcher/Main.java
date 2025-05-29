@@ -2,6 +2,9 @@ package edu.utp.robot.launcher;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello, World!");
+        //mensaje en consola
+        System.out.println("Starting Robot Application...");
+        // Iniciando programa
     }
+
 }
