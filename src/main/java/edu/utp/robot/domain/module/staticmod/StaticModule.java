@@ -1,4 +1,4 @@
-package edu.utp.robot.domain.module.Static;
+package edu.utp.robot.domain.module.staticmod;
 
 import edu.utp.robot.domain.module.Module;
 

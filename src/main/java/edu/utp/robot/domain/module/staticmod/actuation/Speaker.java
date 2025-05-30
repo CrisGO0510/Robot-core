@@ -1,4 +1,4 @@
-package edu.utp.robot.domain.module.Static.actuation;
+package edu.utp.robot.domain.module.staticmod.actuation;
 
 public class Speaker extends Actuacion {
     private boolean encendido = false;

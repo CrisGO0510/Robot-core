@@ -1,4 +1,4 @@
-package edu.utp.robot.domain.module.Static.actuation;
+package edu.utp.robot.domain.module.staticmod.actuation;
 
 public class Actuator extends Actuacion {
     private int id;

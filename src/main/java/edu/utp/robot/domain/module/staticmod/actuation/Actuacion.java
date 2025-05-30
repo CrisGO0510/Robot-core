@@ -1,6 +1,5 @@
-package edu.utp.robot.domain.module.Static.actuation;
-
-import edu.utp.robot.domain.module.Static.StaticModule;
+package edu.utp.robot.domain.module.staticmod.actuation;
+import edu.utp.robot.domain.module.staticmod.StaticModule;
 
 public abstract class Actuacion extends StaticModule {
     protected int N_Actuadores;

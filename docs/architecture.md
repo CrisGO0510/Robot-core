@@ -13,7 +13,7 @@ src/main/java/edu/utp/robot
 │   ├── control
 │   ├── module
 │   │   ├── dynamic
-│   │   └── static
+│   │   └── staticmod
 │   │       ├── actuation
 │   │       └── perception
 │   └── user
@@ -55,7 +55,7 @@ src/main/java/edu/utp/robot
 * **Helical.java**: Movimiento helicoidal.
 * **Rotation.java**: Movimiento rotacional.
 
-##### static
+##### staticmod
 
 * **StaticModule.java**: Módulos sin movimiento (sensores y actuadores).
 

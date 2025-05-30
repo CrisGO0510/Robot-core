@@ -1,6 +1,6 @@
-package edu.utp.robot.domain.module.Static.perception;
+package edu.utp.robot.domain.module.staticmod.perception;
 
-import edu.utp.robot.domain.module.Static.StaticModule;
+import edu.utp.robot.domain.module.staticmod.StaticModule;
 
 public abstract class Perception extends StaticModule {
     protected int N_Sensores;

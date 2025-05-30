@@ -1,4 +1,4 @@
-package edu.utp.robot.domain.module.Static.perception;
+package edu.utp.robot.domain.module.staticmod.perception;
 
 public abstract class Sensor {
     protected int id;
