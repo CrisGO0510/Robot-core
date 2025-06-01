@@ -1,8 +1,6 @@
 package edu.utp.robot.domain.communication;
 
 public class CommunicationGateway {
-    // Puedes agregar atributos si necesitas mantener estado
-
     // Método para enviar un mensaje
     public String enviarMensaje(String mensaje) {
         // Lógica para enviar el mensaje
