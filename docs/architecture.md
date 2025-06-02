@@ -61,7 +61,7 @@ src/main/java/edu/utp/robot
 
 ###### actuation
 
-* **Actuation.java**: Clase que define la actuación de un modulo estático, definiendo número de actuadores y la realzación de la acción
+* **Actuation.java**: Clase que define la actuación de un modulo estático, definiendo número de actuadores y la realización de la acción
 * **Actuator.java**: Clase que centraliza metadatos comunes a todos los actuadores (ID, tipo, descripción) e incluye un método general para realizar acción.
 * **Speaker.java**: Actuador para emitir sonidos.
 
